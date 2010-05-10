@@ -1,0 +1,40 @@
+#!/bin/bash
+
+cd tmp
+rm *.h
+rm *.c
+rm *.vapi
+rm *.so
+#VRSTRUCTS
+valac -C -H vrstructs.h --library vrstructs ../vrstructs.vala --basedir ./
+
+gcc --shared -fPIC -o libstructs.so $(pkg-config --cflags --libs gobject-2.0) vrstructs.c
+
+#VRSQL
+valac --pkg=gtk+-2.0 --pkg=sqlite3 -C -H vrsql.h --library vrsql ../vrsql.vala vrstructs.vapi --basedir ./
+
+gcc --shared -fPIC -o libsql.so $(pkg-config --cflags --libs gobject-2.0) $(pkg-config --cflags --libs sqlite3) -I. -L. -lstructs vrsql.c 
+
+#VRLIB
+valac --pkg=gtk+-2.0 --pkg=sdl --pkg=cairo -C -H vrlib.h --library vrlib ../vrlib.vala vrsql.vapi vrstructs.vapi --basedir ./
+
+sed -i 's,include <SDL,include <SDL\/SDL,' vrlib.c
+
+gcc --shared -fPIC -o libvr.so -lSDL $(pkg-config --cflags --libs gobject-2.0) $(pkg-config --cflags --libs gtk+-2.0) -I. -L. -lsql -lstructs vrlib.c
+
+#VRINPUT
+valac --pkg=sdl -C -H vrinput.h --library vrinput ../vrinput.vala vrstructs.vapi vrlib.vapi vrsql.vapi --basedir ./
+
+sed -i 's,include <SDL,include <SDL\/SDL,' vrinput.c
+
+gcc --shared -fPIC -o libinput.so -lSDL -lSDL_image -lSDL_gfx $(pkg-config --cflags --libs gobject-2.0) -I. -L. -lstructs -lvr -lsql vrinput.c
+
+#VRRENDER
+valac --pkg=sdl --pkg=sdl-gfx --pkg=sdl-image -X -lSDL_gfx -X -lSDL_image -C -H vrrender.h --library vrrender ../vrrender.vala vrstructs.vapi --basedir ./
+
+sed -i 's,include <SDL,include <SDL\/SDL,' vrrender.c
+
+gcc --shared -fPIC -o librender.so -lSDL -lSDL_image -lSDL_gfx $(pkg-config --cflags --libs gobject-2.0) -I. -L. -lstructs vrrender.c
+ 
+#VR
+valac --pkg=sdl --pkg=sdl-gfx --pkg=sdl-image -X -lSDL_gfx -X -lSDL_image -X -I. -X -L. -X -lvr -X -lsql -X -lstructs -X -lrender -X -linput -o ./racer ../racer.vala vrlib.vapi vrsql.vapi vrstructs.vapi vrrender.vapi vrinput.vapi --basedir ./
