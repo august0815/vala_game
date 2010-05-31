@@ -348,8 +348,17 @@ public class Character : GLib.Object {
 	public void collision( ref VRSql db, int start, int end ) {
 		ChunckOfObjects obj = db.get_shoulder ( start, end );		
 		for ( int i = 0; i < obj.type.length; i++ ) {
-			double objXStart = obj.prcFromRoad[i] * 800;
-			double objXEnd = obj
+			double objPrcOfRoad = (double)obj.prcFromRoad[ i ];
+			double objXStart;
+
+			if ( objPrcOfRoad < 0 ) { //Obj on left side
+				objXStart = objPrcOfRoad * 800;
+			}
+			else {
+				objXStart = objPrcOfRoad * 800 + 800;
+			}
+
+			double objXEnd = objXStart + 200;
 			if ( ( objXStart < this.xPosition ) && ( objXEnd > this.xPosition ) ) {
 				return;
 			}

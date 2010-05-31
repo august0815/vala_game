@@ -1,7 +1,7 @@
 /*
 Data structures used by Vala Racer
 */
-using Gee;
+//using Gee;
 
 public class GameState : GLib.Object {
 	public int xRes;
@@ -16,7 +16,7 @@ public class GameState : GLib.Object {
 		inBpp = bpp;
 	}
 }
-
+/*
 public class ObjectLibrary : GLib.Object {
 	var object = new HashMap<string, int>;
    
@@ -24,7 +24,7 @@ public class ObjectLibrary : GLib.Object {
 		object.set ( "tree", 200 );
 	}
 }
-
+*/
 public class ChunckOfObjects : GLib.Object {
 	public int[] type;
 	public int[] trackID;
