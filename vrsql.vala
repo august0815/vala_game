@@ -130,7 +130,6 @@ public class VRSql : GLib.Object {
 
 		int colsInTbl = stmt.column_count ();
 
-
 		int i = 0;
 		do {
 			rc = stmt.step ();
@@ -143,7 +142,7 @@ public class VRSql : GLib.Object {
 					int colData = (int) stmt.column_int ( curCol );
 					switch ( curCol ) {
 					case 1:
-						objs.trackID[i] = colData - segStart;
+						objs.trackID[i] = (colData - segStart);
 						break;
 					case 2:
 						objs.type[i] = colData;

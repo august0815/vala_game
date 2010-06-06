@@ -63,6 +63,7 @@ public class DrawWorld : GLib.Object {
 	private int winXSize;
 	private int winYSize;
 	private int iSeg;
+	private int iShoulder;
 	private int iLines;
 	private int16[] yValuesRoad;
 	private int16[] xValuesRoad;
@@ -77,8 +78,8 @@ public class DrawWorld : GLib.Object {
 	}
 
 	public void get_frame ( ref Painter paint ) {
-		paint.trapezoid ( {0, 0,800,800}, {500, 0,0, 500}, {200,200,200});
-		int iShoulder = 0;
+		paint.trapezoid ( {0, 0, 800, 800}, {500, 0, 0, 500}, {200, 200, 200});
+		iShoulder = objs.trackID.length - 1;
 		for (int i = 0; i < iLines; i++){
 			iSeg = iLines - i;
 			
@@ -101,7 +102,7 @@ public class DrawWorld : GLib.Object {
 			draw_divider( ref paint );
 			paint.unlockit();
 
-			prep_shoulder_obj( ref paint, iShoulder );
+			prep_shoulder_obj( ref paint );
 
 		}
 	}
@@ -152,16 +153,17 @@ public class DrawWorld : GLib.Object {
 		}
 	}
 
-	public void prep_shoulder_obj ( ref Painter paint, int iShoulder ) {
+	public void prep_shoulder_obj ( ref Painter paint) {
 		int curRoadSize = xValuesRoad[2] - xValuesRoad[1];
 		double prcShrink = (double)curRoadSize / (double)winXSize;
 
-		while ( objs.trackID[iShoulder] == iSeg ) { 
+		while ( objs.trackID[iShoulder] == (iSeg + 1) ) {
 			int objType = objs.type[ iShoulder ];
 			double objPrcOfRoad = Math.floor((double)objs.prcFromRoad[ iShoulder ] / 100d);
 
 			int16 objX;
 			int16 objY;
+
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
 				objX = (int16) ( xValuesRoad[ 1 ] + Math.ceil(objPrcOfRoad * curRoadSize));
 				objY = yValuesRoad[1];
@@ -173,7 +175,7 @@ public class DrawWorld : GLib.Object {
 
 			paint.sprite ( objType, objX , objY, prcShrink );
 			
-			iShoulder += 1;
+			iShoulder -= 1;
 		}
 	}
 }
