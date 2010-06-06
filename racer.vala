@@ -41,7 +41,7 @@ public class ValaRacer : GLib.Object {
 			paint.flip();
 
 			uint32 tid2 = SDL.Timer.get_ticks();
-			stderr.printf("FPS: %u\n", tid2 - tid1);
+//			stderr.printf("FPS: %u\n", tid2 - tid1);
 		}
 		return 0;
 	}

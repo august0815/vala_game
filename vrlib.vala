@@ -343,23 +343,26 @@ public class Character : GLib.Object {
 		for ( int i = 0; i < curTrackEnd; i++ ) {
 			this.xPosition += (float)curTrack[0, i] * direction;
 		}
+		collision( ref db, startSeg, endSeg );
+
 	}
 
 	public void collision( ref VRSql db, int start, int end ) {
 		ChunckOfObjects obj = db.get_shoulder ( start, end );		
-		for ( int i = 0; i < obj.type.length; i++ ) {
+		for ( int i = 0; i < ( obj.type.length - 1 ); i++ ) {
 			double objPrcOfRoad = (double)obj.prcFromRoad[ i ];
 			double objXStart;
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
-				objXStart = objPrcOfRoad * 800;
+				objXStart = objPrcOfRoad * 800 / 100;
 			}
 			else {
-				objXStart = objPrcOfRoad * 800 + 800;
+				objXStart = objPrcOfRoad * 800 / 100 + 800;
 			}
-
+			stderr.printf("%f;%f\n", xPosition, objXStart);
 			double objXEnd = objXStart + 200;
-			if ( ( objXStart < this.xPosition ) && ( objXEnd > this.xPosition ) ) {
+			if ( ( objXStart < (this.xPosition*-1) ) && ( objXEnd > (this.xPosition*-1) ) ) {
+				stderr.printf("aaaaaaaaaaaaaaa\n");
 				return;
 			}
 		}
