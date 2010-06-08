@@ -30,10 +30,10 @@ public class Painter : GLib.Object {
 
 	public void sprite ( int type, int16 posX, int16 posY, double prcShrink ) {
 
-		int iCache = (int) ( surfaceCache.nCaches * prcShrink );
+		int iCache = (int) Math.floor( surfaceCache.nCaches * prcShrink );
 
 		Rect placement = Rect();
-		placement.x = posX - (int16) surfaceCache.tree[iCache].w / 2;
+		placement.x = posX - (int16) (surfaceCache.tree[iCache].w / 2d);
 		placement.y = posY - (int16) surfaceCache.tree[iCache].h;
 
 
@@ -160,13 +160,13 @@ public class DrawWorld : GLib.Object {
 		while ( objs.trackID[iShoulder] == (iSeg + 1) ) {
 			int objType = objs.type[ iShoulder ];
 
-			double objPrcOfRoad = Math.floor((double)objs.prcFromRoad[ iShoulder ] / 100d);
+			double objPrcOfRoad = Math.floor(objs.prcFromRoad[ iShoulder ] / 100d);
 			//stderr.printf("%f\n",objPrcOfRoad);
 			int16 objX;
 			int16 objY;
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
-				objX = (int16) ( xValuesRoad[ 1 ] + Math.floor(objPrcOfRoad * curRoadSize));
+				objX = (int16) ( xValuesRoad[ 1 ] + Math.ceil(objPrcOfRoad * curRoadSize));
 				objY = yValuesRoad[1];
 			}
 			else {
@@ -197,7 +197,7 @@ public class SurfaceCache : GLib.Object {
 		SDL.Surface image = SDLImage.load( "/home/l/tree200.png" );
 
 		for ( int i = 0; i < this.nCaches; i++ ) {
-			this.tree[i] = SDLGraphics.RotoZoom.rotozoom( image, 0, ( i + 1f ) / this.nCaches, 0 );
+			this.tree[i] = SDLGraphics.RotoZoom.rotozoom( image, 0, ( i + 1d ) / this.nCaches, 0 );
 			this.tree[i] = this.tree[i].convert( format, flags);
 			this.tree[i].set_colorkey( SurfaceFlag.SRCCOLORKEY | SurfaceFlag.RLEACCEL, 16777215 );
 		}

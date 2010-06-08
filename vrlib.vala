@@ -10,7 +10,7 @@ public class RoadProjector : GLib.Object {
 	private int eyeY = 0;
 	private int eyeZ = 100;
 
-	public double xShift { get; set; default = 0; }
+	public int xShift { get; set; default = 0; }
 	public int trackStart { get; set; default = 0; }
 
 	public RoadProjector ( int inX, int inY ) {
@@ -49,29 +49,22 @@ public class RoadProjector : GLib.Object {
 
 		int xOffset = 0;
 		int yOffset = 0;
-		int tiltOffset = 600;//(int) (curTrack[2, 0] * (1 - dampeningPrc));;
 		int pointZ = eyeZ; //First seg is right underneath the screen
 		for ( int i = 0; i < TRACK_CHUNCK; i++ ) { 
-			double[] xPos;
-			double[] yPos;
+			int[] xPos;
+			int[] yPos;
 
-			if ( tiltOffset < 0 ) {
-				xPos = new double[] { xOffset + xShift, (xOffset + winXSize) + xShift };
-				yPos = new double[] { yOffset, yOffset };
-			}
-			else {
-				int spill = (winXSize - tiltOffset) / 2;
-				xPos = new double[] { xOffset + xShift, (xOffset + winXSize)+xShift };
-				yPos = new double[] { yOffset, yOffset};
-			}
-			//vectors from point towards eye
+			xPos = new int[] { xOffset + xShift, (xOffset + winXSize)+xShift };
+			yPos = new int[] { yOffset, yOffset};
+
+			//vectors from podouble towards eye
    			double[] xVectors = new double[] { eyeX - xPos[0], eyeX - xPos[1] }; //Left and right
 			double[] yVectors = new double[] { eyeY - yPos[0], eyeY - yPos[1] };
 			double zVector = -pointZ;  
 
 			//Magnitude of the vector from left and right point
-			double vecMagL = (double)Math.sqrt( Math.pow(xVectors[0], 2) + Math.pow(yVectors[0], 2) + Math.pow(zVector, 2) );
-			double vecMagR = (double)Math.sqrt( Math.pow(xVectors[1], 2) + Math.pow(yVectors[1], 2) + Math.pow(zVector, 2) );
+			double vecMagL = Math.sqrt( Math.pow(xVectors[0], 2) + Math.pow(yVectors[0], 2) + Math.pow(zVector, 2) );
+			double vecMagR = Math.sqrt( Math.pow(xVectors[1], 2) + Math.pow(yVectors[1], 2) + Math.pow(zVector, 2) );
 										 
 			//Normalized vectors
 			double[] vecNormL = new double[] { xVectors[0] / vecMagL, yVectors[0] / vecMagL, zVector / vecMagL };
@@ -83,17 +76,16 @@ public class RoadProjector : GLib.Object {
 
 			//xOffset is the starting position for the vector + how much the vector
 			//changes X before it hits the screen
-			int16 projXL = (int16) ( (vecNormL[0] * factorL + xPos[0]));
-			int16 projXR = (int16) ( (vecNormR[0] * factorR + xPos[1]));
+			int16 projXL = (int16) Math.ceil( (vecNormL[0] * factorL + xPos[0]));
+			int16 projXR = (int16) Math.ceil( (vecNormR[0] * factorR + xPos[1]));
 
 			//winYSize because 0y is on top of the screen so the image needs to be inverted
-			int16 projYL = (int16) ( winYSize - ( vecNormL[1] * factorL + yPos[0] ) );
-			int16 projYR = (int16) ( winYSize - ( vecNormR[1] * factorR + yPos[1] ) );
+			int16 projYL = (int16) Math.ceil( winYSize - ( vecNormL[1] * factorL + yPos[0] ) );
+			int16 projYR = (int16) Math.ceil( winYSize - ( vecNormR[1] * factorR + yPos[1] ) );
 
 			//Prepare next values
 			xOffset += curTrack[0, i];
 			yOffset += curTrack[1, i];
-			tiltOffset = 600;//(int) ( curTrack[2, i] );
 			pointZ = eyeZ + ROAD_SEG_LENGTH * i + (int) ( dampeningPrc * ROAD_SEG_LENGTH );
 
 			newFrame.trackRightX[i] = projXR;

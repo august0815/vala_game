@@ -30,7 +30,7 @@ public class ValaRacer : GLib.Object {
 			keyInput.modify_game_state ( ref state );
 			keyInput.modify_player ( ref player );
 			player.move ( ref vrdb );
-			road.xShift = player.xPosition;
+			road.xShift = (int)Math.floor(player.xPosition);
 			road.trackStart = (int)player.zPosition;
 
 			FrameData newFrame = road.build_road ( ref vrdb );
