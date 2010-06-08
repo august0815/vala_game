@@ -159,13 +159,14 @@ public class DrawWorld : GLib.Object {
 
 		while ( objs.trackID[iShoulder] == (iSeg + 1) ) {
 			int objType = objs.type[ iShoulder ];
-			double objPrcOfRoad = Math.floor((double)objs.prcFromRoad[ iShoulder ] / 100d);
 
+			double objPrcOfRoad = Math.floor((double)objs.prcFromRoad[ iShoulder ] / 100d);
+			//stderr.printf("%f\n",objPrcOfRoad);
 			int16 objX;
 			int16 objY;
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
-				objX = (int16) ( xValuesRoad[ 1 ] + Math.ceil(objPrcOfRoad * curRoadSize));
+				objX = (int16) ( xValuesRoad[ 1 ] + Math.floor(objPrcOfRoad * curRoadSize));
 				objY = yValuesRoad[1];
 			}
 			else {

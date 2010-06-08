@@ -230,7 +230,7 @@ public class RoadGenerator : GLib.Object {
 	private GeneratedObjects shoulder_objects_alg ( int[] segScope ) {
 		GeneratedObjects objects = new GeneratedObjects ();
 		for ( int i = 0; i < this.length; i++ ) {
-			int iObjOnLine = 1;//GLib.Random.int_range ( 1, 2 );
+			int iObjOnLine = GLib.Random.int_range ( -10, 2 );
 			for ( int j = 0; j < iObjOnLine; j++ ) {
 				objects.type.append ( 1 );
 				objects.trackID.append ( segScope[0] + i );
@@ -348,20 +348,24 @@ public class Character : GLib.Object {
 	}
 
 	public void collision( ref VRSql db, int start, int end ) {
-		ChunckOfObjects obj = db.get_shoulder ( start, end );		
-		for ( int i = 0; i < ( obj.type.length - 1 ); i++ ) {
-			double objPrcOfRoad = (double)obj.prcFromRoad[ i ];
+		ChunckOfObjects obj = db.get_shoulder ( (start+2), (end+1) );		
+
+		for ( int i = 0; i < ( obj.type.length ); i++ ) {
+			double objPrcOfRoad = Math.floor((double)obj.prcFromRoad[ i ] / 100d);
 			double objXStart;
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
-				objXStart = objPrcOfRoad * 800 / 100;
+				objXStart = objPrcOfRoad * 800;
 			}
 			else {
-				objXStart = objPrcOfRoad * 800 / 100 + 800;
+				objXStart = objPrcOfRoad * 800 + 800;
 			}
-			stderr.printf("%f;%f\n", xPosition, objXStart);
+			double xPosition2 = this.xPosition - 400;
+			stderr.printf("%i;%i\n", start, end);
+			stderr.printf("%f;%f\n", xPosition2, objXStart);
 			double objXEnd = objXStart + 200;
-			if ( ( objXStart < (this.xPosition*-1) ) && ( objXEnd > (this.xPosition*-1) ) ) {
+
+			if ( ( objXStart < (xPosition2*-1) ) && ( objXEnd > (xPosition2*-1) ) ) {
 				stderr.printf("aaaaaaaaaaaaaaa\n");
 				return;
 			}
