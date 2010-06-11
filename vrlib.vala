@@ -10,7 +10,7 @@ public class RoadProjector : GLib.Object {
 	private int eyeY = 0;
 	private int eyeZ = 100;
 
-	public int xShift { get; set; default = 0; }
+	public double xShift { get; set; default = 0; }
 	public int trackStart { get; set; default = 0; }
 
 	public RoadProjector ( int inX, int inY ) {
@@ -47,15 +47,15 @@ public class RoadProjector : GLib.Object {
 		curTrack[1, 0] = (int) (curTrack[1, 0] * (dampeningPrc));
 		curTrack[2, 0] = (int) (curTrack[2, 0] * (dampeningPrc));
 
-		int xOffset = 0;
-		int yOffset = 0;
-		int pointZ = eyeZ; //First seg is right underneath the screen
+		double xOffset = 0;
+		double yOffset = 0;
+		double pointZ = eyeZ; //First seg is right underneath the screen
 		for ( int i = 0; i < TRACK_CHUNCK; i++ ) { 
-			int[] xPos;
-			int[] yPos;
+			double[] xPos;
+			double[] yPos;
 
-			xPos = new int[] { xOffset + xShift, (xOffset + winXSize)+xShift };
-			yPos = new int[] { yOffset, yOffset};
+			xPos = new double[] { xOffset + xShift, (xOffset + winXSize)+xShift };
+			yPos = new double[] { yOffset, yOffset};
 
 			//vectors from podouble towards eye
    			double[] xVectors = new double[] { eyeX - xPos[0], eyeX - xPos[1] }; //Left and right
@@ -63,30 +63,30 @@ public class RoadProjector : GLib.Object {
 			double zVector = -pointZ;  
 
 			//Magnitude of the vector from left and right point
-			double vecMagL = Math.sqrt( Math.pow(xVectors[0], 2) + Math.pow(yVectors[0], 2) + Math.pow(zVector, 2) );
-			double vecMagR = Math.sqrt( Math.pow(xVectors[1], 2) + Math.pow(yVectors[1], 2) + Math.pow(zVector, 2) );
+			double vecMagL = (Math.sqrt( Math.pow(xVectors[0], 2) + Math.pow(yVectors[0], 2) + Math.pow(zVector, 2) ));
+			double vecMagR = (Math.sqrt( Math.pow(xVectors[1], 2) + Math.pow(yVectors[1], 2) + Math.pow(zVector, 2) ));
 										 
 			//Normalized vectors
-			double[] vecNormL = new double[] { xVectors[0] / vecMagL, yVectors[0] / vecMagL, zVector / vecMagL };
-			double[] vecNormR = new double[] { xVectors[1] / vecMagR, yVectors[1] / vecMagR, zVector / vecMagR };
+			double[] vecNormL = new double[] { (xVectors[0] / vecMagL), (yVectors[0] / vecMagL), (zVector / vecMagL) };
+			double[] vecNormR = new double[] { (xVectors[1] / vecMagR), (yVectors[1] / vecMagR), (zVector / vecMagR) };
 										 
 			//pointZ is always bigger then eyeZ, z vector is negative
-			double factorL = ( eyeZ - pointZ ) / vecNormL[2];
-			double factorR = ( eyeZ - pointZ ) / vecNormR[2];
+			double factorL = (( eyeZ - pointZ ) / vecNormL[2]);
+			double factorR = (( eyeZ - pointZ ) / vecNormR[2]);
 
 			//xOffset is the starting position for the vector + how much the vector
 			//changes X before it hits the screen
-			int16 projXL = (int16) Math.ceil( (vecNormL[0] * factorL + xPos[0]));
-			int16 projXR = (int16) Math.ceil( (vecNormR[0] * factorR + xPos[1]));
+			double projXL = (double) ( (vecNormL[0] * factorL + xPos[0]));
+			double projXR = (double) ( (vecNormR[0] * factorR + xPos[1]));
 
 			//winYSize because 0y is on top of the screen so the image needs to be inverted
-			int16 projYL = (int16) Math.ceil( winYSize - ( vecNormL[1] * factorL + yPos[0] ) );
-			int16 projYR = (int16) Math.ceil( winYSize - ( vecNormR[1] * factorR + yPos[1] ) );
+			double projYL = (double) ( winYSize - ( vecNormL[1] * factorL + yPos[0] ) );
+			double projYR = (double) ( winYSize - ( vecNormR[1] * factorR + yPos[1] ) );
 
 			//Prepare next values
 			xOffset += curTrack[0, i];
 			yOffset += curTrack[1, i];
-			pointZ = eyeZ + ROAD_SEG_LENGTH * i + (int) ( dampeningPrc * ROAD_SEG_LENGTH );
+			pointZ = eyeZ + ROAD_SEG_LENGTH * i + (int) Math.ceil( dampeningPrc * ROAD_SEG_LENGTH );
 
 			newFrame.trackRightX[i] = projXR;
 			newFrame.trackRightY[i] =  projYR;
@@ -110,8 +110,8 @@ public class RoadProjector : GLib.Object {
 		if ( trackIndex % ( divSegLength + divSegSepr ) > ( divSegLength ) ) {
 
 
-			int roadLeftX = newFrame.trackLeftX[index];
-			int roadRightX = newFrame.trackRightX[index];
+			int roadLeftX = (int)newFrame.trackLeftX[index];
+			int roadRightX = (int)newFrame.trackRightX[index];
 
 			int roadWidth = ( roadLeftX - roadRightX ).abs ();
 			float roadOfDiv = (roadWidth * roadOfDivPrc);
