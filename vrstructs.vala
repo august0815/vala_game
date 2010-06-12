@@ -48,8 +48,7 @@ public class FrameData : GLib.Object {
 	public double[] trackRightX;
 	public int16[] trackLeftY;
 	public int16[] trackRightY;
-	public int16[] centDivLX;
-	public int16[] centDivRX;
+	public bool[] divider;
 	public int16[] groundColor;
 
 	public FrameData ( int nIndex ) {
@@ -57,8 +56,7 @@ public class FrameData : GLib.Object {
 		trackRightX = new double[nIndex];
 		trackLeftY = new int16[nIndex];
 		trackRightY = new int16[nIndex];
-		centDivLX = new int16[nIndex];
-		centDivRX = new int16[nIndex];
+		divider = new bool[nIndex];
 		groundColor = new int16[nIndex];
 	}
 }

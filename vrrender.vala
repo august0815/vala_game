@@ -138,17 +138,21 @@ public class DrawWorld : GLib.Object {
 	}
 
 	public void draw_divider ( ref Painter paint ) {
+		double curRoadSize = xValuesRoad[2] - xValuesRoad[1];
+		double nextRoadSize = xValuesRoad[3] - xValuesRoad[0];
+		double roadOfDivPrc = ( 100 - 1 ) / 200d;
+		int16 curDivSize = (int16) ( curRoadSize * roadOfDivPrc );
+		int16 nextDivSize = (int16) ( nextRoadSize * roadOfDivPrc );
 		uchar[] RGB = { 50, 50, 50 };
-		int topDiv = frame.centDivLX[iSeg];
-		int botDiv = frame.centDivLX[iSeg - 1];
+		
 
-		if ( topDiv != 0 && botDiv != 0){
+		if ( frame.divider[iSeg] == true ){
 			int16[] yValues = yValuesRoad;
 
-			int16[] xValues = { frame.centDivLX[iSeg - 1],
-								frame.centDivLX[iSeg ],
-								frame.centDivRX[iSeg],
-								frame.centDivRX[iSeg - 1] };
+			int16[] xValues = { xValuesRoad[0] + nextDivSize,
+								xValuesRoad[1] + curDivSize,
+								xValuesRoad[2] - curDivSize,
+								xValuesRoad[3] - nextDivSize};
 			paint.trapezoid ( xValues, yValues, RGB);
 		}
 	}

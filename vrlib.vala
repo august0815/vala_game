@@ -100,35 +100,25 @@ public class RoadProjector : GLib.Object {
 	}
 
 	private void divider ( int db, int index, ref FrameData newFrame ) {
-		int divWidthPrc = 1; //How many percent of the roads width is divider
 		int divSegLength = 1; //Number of segments a divider should span
-		int divSegSepr = 3; //Number of road segs should seperate each divider
+		int divSegSepr = 1; //Number of road segs should seperate each divider
 
 		int trackIndex = db + index;
-		float roadOfDivPrc = ( 100 - divWidthPrc ) / 200f;
-			
-		if ( trackIndex % ( divSegLength + divSegSepr ) > ( divSegLength ) ) {
-
-			int roadLeftX = (int)newFrame.trackLeftX[index];
-			int roadRightX = (int)newFrame.trackRightX[index];
-
-			int roadWidth = ( roadLeftX - roadRightX ).abs ();
-			float roadOfDiv = (roadWidth * roadOfDivPrc);
-
-			newFrame.centDivLX[index] = (int16) ( roadLeftX + roadOfDiv );
-			newFrame.centDivRX[index] = (int16) ( roadRightX - roadOfDiv );
+		
+		//Think about it...
+		if ( trackIndex % ( divSegLength + divSegSepr ) <= ( divSegLength - 1 ) ) {
+			newFrame.divider[index] = true;
 		}
 		else {
-			newFrame.centDivLX[index] = 0;
-			newFrame.centDivRX[index] = 0;
+			newFrame.divider[index] = false;
 		}
 	}
 
 	private void ground ( int db, int index, ref FrameData newFrame ) {
-		int segGround = 12; //Number of segments before color change
-		
+		int segGround = 15; //Number of segments before color change
 		int trackIndex = db + index;
-		if ( trackIndex % ( segGround * 2 ) > segGround ) {
+
+		if ( trackIndex % ( segGround * 2 ) >= segGround ) {
 			newFrame.groundColor[index] = 1;
 		}
 		else { newFrame.groundColor[index] = 0; }
