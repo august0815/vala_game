@@ -29,10 +29,10 @@ public class RoadProjector : GLib.Object {
 
 		bool roadExists = db.check_scope( iFirstSeg, iFirstSeg + TRACK_CHUNCK );
 		if ( !roadExists ) { 
-			RoadGenerator roadGen = new RoadGenerator ( 0, 0, 0, 0 );
+			RoadGenerator roadGen = new RoadGenerator ( 0, 0, 0 );
 			while ( !roadExists ) {
 				roadGen.new_seg ( ref db );
-				roadGen.new_delta ( 0, 0, 0, 0);
+				roadGen.new_delta ( 0, 0, 0);
 				roadExists = db.check_scope( iFirstSeg, iFirstSeg + TRACK_CHUNCK );			
 			}
 		}
@@ -76,12 +76,12 @@ public class RoadProjector : GLib.Object {
 
 			//xOffset is the starting position for the vector + how much the vector
 			//changes X before it hits the screen
-			double projXL = (double) ( (vecNormL[0] * factorL + xPos[0]));
-			double projXR = (double) ( (vecNormR[0] * factorR + xPos[1]));
+			double projXL =  vecNormL[0] * factorL + xPos[0];
+			double projXR =  vecNormR[0] * factorR + xPos[1];
 
 			//winYSize because 0y is on top of the screen so the image needs to be inverted
-			double projYL = (double) ( winYSize - ( vecNormL[1] * factorL + yPos[0] ) );
-			double projYR = (double) ( winYSize - ( vecNormR[1] * factorR + yPos[1] ) );
+			int16 projYL = (int16) ( winYSize - ( vecNormL[1] * factorL + yPos[0] ) );
+			int16 projYR = (int16) ( winYSize - ( vecNormR[1] * factorR + yPos[1] ) );
 
 			//Prepare next values
 			xOffset += curTrack[0, i];
@@ -101,14 +101,13 @@ public class RoadProjector : GLib.Object {
 
 	private void divider ( int db, int index, ref FrameData newFrame ) {
 		int divWidthPrc = 1; //How many percent of the roads width is divider
-		int divSegLength = 3; //Number of segments a divider should span
-		int divSegSepr = 4; //Number of road segs should seperate each divider
+		int divSegLength = 1; //Number of segments a divider should span
+		int divSegSepr = 3; //Number of road segs should seperate each divider
 
 		int trackIndex = db + index;
 		float roadOfDivPrc = ( 100 - divWidthPrc ) / 200f;
 			
 		if ( trackIndex % ( divSegLength + divSegSepr ) > ( divSegLength ) ) {
-
 
 			int roadLeftX = (int)newFrame.trackLeftX[index];
 			int roadRightX = (int)newFrame.trackRightX[index];
@@ -147,29 +146,24 @@ public class RoadGenerator : GLib.Object {
 
 	private int deltaX;
 	private int deltaY;
-	private int tilt;
 	private int length;
 	private double e = Math.E;
 
-	public RoadGenerator ( int inDeltaX = 0, int inDeltaY = 0, int inTilt = 0, int inLength = 0 ) {
-		this.new_delta ( inDeltaX, inDeltaY, inTilt, inLength );
+	public RoadGenerator ( int inDeltaX = 0, int inDeltaY = 0, int inLength = 0 ) {
+		this.new_delta ( inDeltaX, inDeltaY, inLength );
 	}
 
-	public void new_delta ( int inDeltaX, int inDeltaY, int inTilt, int inLength ) {
+	public void new_delta ( int inDeltaX, int inDeltaY, int inLength ) {
 		if (inDeltaX == 0) {
 			deltaX = GLib.Random.int_range (-2000, 2000);
 		} else { deltaX = inDeltaX; }
 
 		if (inDeltaY == 0) {
-			deltaY = GLib.Random.int_range (-2000, 2000);
+			deltaY = GLib.Random.int_range (-1000, 1000);
 		} else { deltaY = inDeltaY; }
 
-		if (inTilt == 0) {
-			tilt = GLib.Random.int_range (-2000, 2000);
-		} else { tilt = inTilt; }
-
 		if (inLength == 0) {
-			length = GLib.Random.int_range (10, 12);
+			length = GLib.Random.int_range (30, 50);
 		} else { length = inLength; }
 	}
 
@@ -177,10 +171,9 @@ public class RoadGenerator : GLib.Object {
 		//Generate values
 		int[] xSegs = this.bend_alg ( 0 );
 		int[] ySegs = this.bend_alg ( 1 );
-		int[] tilt = this.bend_alg ( 2 );
 
 		//Append the generated values
-		int[] newSegScope = db.append_road ( xSegs, ySegs, tilt );
+		int[] newSegScope = db.append_road ( xSegs, ySegs );
 
 		//Generate objects for the newly created road segment
 		GeneratedObjects objects = this.shoulder_objects_alg ( newSegScope );
@@ -196,10 +189,7 @@ public class RoadGenerator : GLib.Object {
 			totalDelta = deltaX;
 			break;
 		case 1:
-			totalDelta = 0;//deltaY;
-			break;
-		case 2:
-			totalDelta = 800;
+			totalDelta = deltaY;
 			break;
 		}
 
@@ -336,28 +326,26 @@ public class Character : GLib.Object {
 			this.xPosition += (float)curTrack[0, i] * direction;
 		}
 		collision( ref db, startSeg, endSeg );
-
 	}
 
 	public void collision( ref VRSql db, int start, int end ) {
 		ChunckOfObjects obj = db.get_shoulder ( (start+2), (end+1) );		
 
 		for ( int i = 0; i < ( obj.type.length ); i++ ) {
-			double objPrcOfRoad = Math.floor((double)obj.prcFromRoad[ i ] / 100d);
+			double objPrcOfRoad = obj.prcFromRoad[ i ] / 100d;
 			double objXStart;
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
 				objXStart = objPrcOfRoad * 800;
+
 			}
 			else {
 				objXStart = objPrcOfRoad * 800 + 800;
 			}
-			double xPosition2 = this.xPosition - 400;
-			stderr.printf("%i;%i\n", start, end);
-			stderr.printf("%f;%f\n", xPosition2, objXStart);
+			double xPosCentered = (this.xPosition - 400 - 100) * -1;
 			double objXEnd = objXStart + 200;
 
-			if ( ( objXStart < (xPosition2*-1) ) && ( objXEnd > (xPosition2*-1) ) ) {
+			if ( ( objXStart < (xPosCentered) ) && ( objXEnd > (xPosCentered) ) ) {
 				stderr.printf("aaaaaaaaaaaaaaa\n");
 				return;
 			}

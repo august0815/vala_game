@@ -18,7 +18,7 @@ public class VRSql : GLib.Object {
 			stderr.printf ("Can't open database: %d, %s\n", rc, db.errmsg ());
 		}
 
-		db.exec("CREATE TABLE track ( id INTEGER PRIMARY KEY, x INTEGER, y INTEGER, tilt INTEGER )", null, null);
+		db.exec("CREATE TABLE track ( id INTEGER PRIMARY KEY, x INTEGER, y INTEGER )", null, null);
 		db.exec("CREATE TABLE shoulder ( id INTEGER PRIMARY KEY, track_id INTEGER, type INTEGER, prc_of_road INTEGER )", null, null);
 		db.exec("ATTACH \"./VRDB\" AS disk", null, null);
 		db.exec("INSERT INTO track SELECT * FROM disk.track", null, null);
@@ -81,7 +81,7 @@ public class VRSql : GLib.Object {
 		return trackData;
 	}
 
-	public int[] append_road (int[] roadXSegs, int[] roadYSegs, int[] roadTiltSegs) {
+	public int[] append_road (int[] roadXSegs, int[] roadYSegs) {
 		int[] segIndex = new int[2];
 		rc = db.prepare_v2 ( "SELECT MAX(id) FROM track", -1, out stmt, null );
 		stmt.step ();
@@ -89,8 +89,8 @@ public class VRSql : GLib.Object {
 		
 		string sqlStmt = "";
 		for ( int i = 0; i < roadXSegs.length; i++ ) {
-			sqlStmt += "INSERT INTO track (x, y, tilt) VALUES (" + roadXSegs[i].to_string() + ", " 
-			+ roadYSegs[i].to_string() + ", " + roadTiltSegs[i].to_string() + ");";
+			sqlStmt += "INSERT INTO track (x, y) VALUES (" + roadXSegs[i].to_string() + ", " 
+			+ roadYSegs[i].to_string() + ");";
 		}
 		db.exec(sqlStmt, null, null);
 

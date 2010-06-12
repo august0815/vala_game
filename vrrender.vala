@@ -86,10 +86,10 @@ public class DrawWorld : GLib.Object {
 			/*Since most everything is based on the position of the road segment
 			  those values are added so that all methods can reach them
 			*/
-			yValuesRoad = { (int16)frame.trackLeftY[iSeg - 1], //bottom y
-							(int16)frame.trackLeftY[iSeg], //top y 
-							(int16)frame.trackRightY[iSeg], //bottom y
-							(int16)frame.trackRightY[iSeg - 1] }; //top y 
+			yValuesRoad = { frame.trackLeftY[iSeg - 1], //bottom y
+							frame.trackLeftY[iSeg], //top y 
+							frame.trackRightY[iSeg], //bottom y
+							frame.trackRightY[iSeg - 1] }; //top y 
 
 			xValuesRoad = { (int16)frame.trackLeftX[iSeg - 1], //bottom left x
 							(int16)frame.trackLeftX[iSeg], // top left x
@@ -156,27 +156,24 @@ public class DrawWorld : GLib.Object {
 	public void prep_shoulder_obj ( ref Painter paint) {
 		double curRoadSize = frame.trackRightX[iSeg] - frame.trackLeftX[iSeg];
 		double prcShrink = (double)curRoadSize / (double)winXSize;
-
 		
 		while ( objs.trackID[iShoulder] == (iSeg + 1) ) {
 			int objType = objs.type[ iShoulder ];
-			double objPrcOfRoad = Math.floor(objs.prcFromRoad[ iShoulder ] / 100d);
+			double objPrcOfRoad = objs.prcFromRoad[ iShoulder ] / 100d;
 
-			double posOffset = ((double)curRoadSize * objPrcOfRoad);
+			double posOffset = curRoadSize * objPrcOfRoad;
 
 			int16 objX;
 			int16 objY;
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
 				int spritePos = xValuesRoad[ 1 ] + (int)posOffset;
-
-				objX = (int16) ( spritePos);//((objPrcOfRoad * curRoadSize) + (objPrcOfRoad * curRoadSize)+ (objPrcOfRoad * curRoadSize1) )/3) ;//Math.ceil(objPrcOfRoad * curRoadSize));
+				objX = (int16) ( spritePos);
 				objY = yValuesRoad[1];
 			}
 			else {
-				int spritePos = xValuesRoad[ 1 ] + (int)posOffset;
-
-				objX = (int16) ( spritePos);//((objPrcOfRoad * curRoadSize) + (objPrcOfRoad * curRoadSize)+ (objPrcOfRoad * curRoadSize1) )/3);//Math.floor(objPrcOfRoad * curRoadSize));
+				int spritePos = xValuesRoad[ 2 ] + (int)posOffset;
+				objX = (int16) ( spritePos);
 				objY = yValuesRoad[2]; 
 			}
 
@@ -185,45 +182,6 @@ public class DrawWorld : GLib.Object {
 			iShoulder -= 1;
 		}
 	}
-
-/*	private int pos_smoothing ( double prcFromRoad) {
-		
-
-/*		int threshold = 2;
-		int delta = 0;
-		int curRoadSize = frame.trackRightX[iSeg] - frame.trackLeftX[iSeg];
-		double smoothedPos = 0;//prcFromRoad * curRoadSize;
-		int y = 0;
-		for ( int i = 0; delta < threshold; i++ ) {
-			int nextRoadSize = frame.trackRightX[iSeg + i] - frame.trackLeftX[iSeg + i];
-			smoothedPos += prcFromRoad * nextRoadSize;
-			delta += (int)Math.fabs(frame.trackRightX[iSeg + i] - frame.trackRightX[iSeg + i + 1]) * 200 /curRoadSize;
-			y += 1;
-//curRoadSize = nextRoadSize;
-		}
-		smoothedPos = smoothedPos / y;
-		return (int)smoothedPos;
-/*		double threshhold = 10d;
-
-		int curRoadSize = frame.trackRightX[iSeg] - frame.trackLeftX[iSeg];
-		double prcShrink = (double)curRoadSize / (double)winXSize;
-		double quota = 5;//Math.floor(threshhold / curRoadSize);
-		double smoothedPos = prcFromRoad * curRoadSize;
-		for ( int i = 1; i <= quota; i++ ) {
-			int asd = ((int) frame.trackLeftY.length - 1);
-			int dsa = (iSeg-i);
-			if ( dsa == 0) {
-				quota = i;
-				break;
-			}
-			int nextRoadSize = frame.trackRightX[iSeg - i] - frame.trackLeftX[iSeg - i];
-			smoothedPos += prcFromRoad * nextRoadSize;
-		}
-		smoothedPos = smoothedPos / (quota + 1);
-		stderr.printf("%f\n", smoothedPos);
-		return (int)smoothedPos;
-*/
-
 }
 
 public class SurfaceCache : GLib.Object {
