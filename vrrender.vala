@@ -141,7 +141,6 @@ public class DrawWorld : GLib.Object {
 		int16 nextDivSize = (int16) ( nextRoadSize * roadOfDivPrc );
 		uchar[] RGB = { 50, 50, 50 };
 		
-
 		if ( frame.divider[iSeg] == true ){
 			int16[] yValues = yValuesRoad;
 
@@ -160,7 +159,6 @@ public class DrawWorld : GLib.Object {
 		while ( objs.trackID[iShoulder] == (iSeg + 1) ) {
 			int objType = objs.type[ iShoulder ];
 			double objPrcOfRoad = objs.prcFromRoad[ iShoulder ] / 100d;
-
 			double posOffset = curRoadSize * objPrcOfRoad;
 
 			int16 objX;
@@ -202,6 +200,9 @@ public class SurfaceCache : GLib.Object {
 		for ( int i = 0; i < this.nCaches; i++ ) {
 			this.tree[i] = SDLGraphics.RotoZoom.rotozoom( image, 0, ( i + 1d ) / this.nCaches, 0 );
 			this.tree[i] = this.tree[i].convert( format, flags);
+			if ( (this.tree[i].h == 0) || (this.tree[i].w == 0) ) {
+				this.tree[i] = this.tree[i - 1].convert( format, flags);
+			}
 			//Transparency
 			this.tree[i].set_colorkey( SurfaceFlag.SRCCOLORKEY | SurfaceFlag.RLEACCEL, 16777215 );
 		}
