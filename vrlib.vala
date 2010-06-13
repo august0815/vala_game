@@ -21,7 +21,6 @@ public class RoadProjector : GLib.Object {
 	}
 
 	public FrameData build_road ( ref VRSql db ) {
-
 		FrameData newFrame = new FrameData ( TRACK_CHUNCK );
 
 		//Which road segment does trackStart belong to
@@ -89,7 +88,7 @@ public class RoadProjector : GLib.Object {
 			pointZ = eyeZ + ROAD_SEG_LENGTH * i + (int) Math.ceil( dampeningPrc * ROAD_SEG_LENGTH );
 
 			newFrame.trackRightX[i] = projXR;
-			newFrame.trackRightY[i] =  projYR;
+			newFrame.trackRightY[i] = projYR;
 			newFrame.trackLeftX[i] = projXL;
 			newFrame.trackLeftY[i] = projYL;
 
@@ -102,7 +101,6 @@ public class RoadProjector : GLib.Object {
 	private void divider ( int db, int index, ref FrameData newFrame ) {
 		int divSegLength = 1; //Number of segments a divider should span
 		int divSegSepr = 1; //Number of road segs should seperate each divider
-
 		int trackIndex = db + index;
 		
 		//Think about it...
@@ -126,14 +124,12 @@ public class RoadProjector : GLib.Object {
 
 	public ChunckOfObjects get_shoulder ( ref VRSql db ) {
 		int iFirstSeg = (int) Math.round ( trackStart / ROAD_SEG_LENGTH ) + 1;
-
 		ChunckOfObjects obj = db.get_shoulder ( iFirstSeg, iFirstSeg + TRACK_CHUNCK );
 		return obj;
 	} 
 }
 
 public class RoadGenerator : GLib.Object {
-
 	private int deltaX;
 	private int deltaY;
 	private int length;
@@ -215,6 +211,8 @@ public class RoadGenerator : GLib.Object {
 
 
 public class Character : GLib.Object {
+	public int centerXPos { get; set; }
+	public int roadSegLength { get; set; }
 	public double zPosition;
 	public double xPosition;
 	public double yPosition;
@@ -230,10 +228,14 @@ public class Character : GLib.Object {
 	private int[] timeAccelerationStart = new int[2];
 	private int timeSinceLastUpdate;
 
-	public Character ( int[] inAcceleration, int[] inTopSpeed, int[] inDecelleration ) {
+	public Character ( int[] inAcceleration, int[] inTopSpeed, int[] inDecelleration, int inWinXSize, int inRoadSegLength ) {
+		centerXPos = inWinXSize / 2;
+		roadSegLength = inRoadSegLength;
+
 		acceleration = inAcceleration;
 		topSpeed = inTopSpeed;
 		decelleration = inDecelleration;
+
 		currentDirection[0] = 0;
 		currentDirection[1] = 0;
 		currentSpeed[0] = 0;
@@ -246,7 +248,7 @@ public class Character : GLib.Object {
 	public void decelerate ( int index ) {
 		double previousSpeed = this.currentSpeed[index];
 		this.accelerate ( index, reversedDirection[index] );
-		if ( Math.fabs(previousSpeed) < Math.fabs(this.currentSpeed[index]) ) {
+		if ( Math.fabs( previousSpeed ) < Math.fabs( this.currentSpeed[index] ) ) {
 			this.currentSpeed[index] = 0;
 			this.currentDirection[index] = 0;
 		}
@@ -291,15 +293,14 @@ public class Character : GLib.Object {
 			direction = 1;
 		}
 
-		int ROAD_SEG_LENGTH = 50;
-		int startSeg = (int) Math.round ( zPosLow / ROAD_SEG_LENGTH ) + 1;
-	 	int endSeg = (int) Math.round ( zPosHigh / ROAD_SEG_LENGTH ) + 1;
+		int startSeg = (int) Math.round ( zPosLow / roadSegLength ) + 1;
+	 	int endSeg = (int) Math.round ( zPosHigh / roadSegLength ) + 1;
 
-		int relTrackStart = (startSeg) * ROAD_SEG_LENGTH - zPosLow;
-		double startDmpPrc = (double) relTrackStart / ROAD_SEG_LENGTH;
+		int relTrackStart = (startSeg) * roadSegLength - zPosLow;
+		double startDmpPrc = (double) relTrackStart / roadSegLength;
 
-		int relTrackEnd = (endSeg) * ROAD_SEG_LENGTH - zPosHigh;
-		double endDmpPrc = 1 - (double) relTrackEnd / ROAD_SEG_LENGTH;
+		int relTrackEnd = (endSeg) * roadSegLength - zPosHigh;
+		double endDmpPrc = 1 - (double) relTrackEnd / roadSegLength;
 
 		int[,] curTrack = db.get_road( startSeg, endSeg );
 		int curTrackEnd = (int)Math.fabs(endSeg - startSeg) + 1;
@@ -327,11 +328,11 @@ public class Character : GLib.Object {
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
 				objXStart = objPrcOfRoad * 800;
-
 			}
 			else {
 				objXStart = objPrcOfRoad * 800 + 800;
 			}
+
 			double xPosCentered = (this.xPosition - 400 - 100) * -1;
 			double objXEnd = objXStart + 200;
 
@@ -341,7 +342,4 @@ public class Character : GLib.Object {
 			}
 		}
 	}
-
 }
-
-

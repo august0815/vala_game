@@ -19,8 +19,6 @@ public class Painter : GLib.Object {
         }
 		SDL.WindowManager.set_caption ("Vala Racer", "");
 
-//		SDL.WindowManager.toggle_fullscreen (screen);
-
 		format = screen.format;
 		flags = screen.flags;
 		surfaceCache = new SurfaceCache (format, flags );
@@ -29,13 +27,11 @@ public class Painter : GLib.Object {
  	}
 
 	public void sprite ( int type, int16 posX, int16 posY, double prcShrink ) {
-
 		int iCache = (int) Math.floor( surfaceCache.nCaches * prcShrink );
 
 		Rect placement = Rect();
 		placement.x = posX - (int16) (surfaceCache.tree[iCache].w / 2d);
 		placement.y = posY - (int16) surfaceCache.tree[iCache].h;
-
 
 		surfaceCache.tree[iCache].blit( null, screen, placement );
 	}
@@ -68,18 +64,19 @@ public class DrawWorld : GLib.Object {
 	private int16[] yValuesRoad;
 	private int16[] xValuesRoad;
 
-	public DrawWorld ( FrameData inFrame, ChunckOfObjects inObjs, int winX, int winY ) {	
-		frame = inFrame;
-		objs = inObjs;
+	public DrawWorld ( int winX, int winY ) {	
 		winXSize = winX;
 		winYSize = winY;
-
-		iLines = (int) frame.trackLeftY.length - 1;
 	}
 
-	public void get_frame ( ref Painter paint ) {
+	public void get_frame ( FrameData inFrame, ChunckOfObjects inObjs, ref Painter paint ) {
+		frame = inFrame;
+		objs = inObjs;
+
 		paint.trapezoid ( {0, 0, 800, 800}, {500, 0, 0, 500}, {200, 200, 200});
+		iLines = (int) frame.trackLeftY.length - 1;
 		iShoulder = objs.trackID.length - 1;
+
 		for (int i = 0; i < iLines; i++){
 			iSeg = iLines - i;
 			
@@ -109,7 +106,6 @@ public class DrawWorld : GLib.Object {
 
  	public void draw_road ( ref Painter paint) {
 		uchar[] RGB = { 0xFF, 0x00, 0x0F };
-
 		paint.trapezoid ( xValuesRoad, yValuesRoad, RGB);
 	}
 
@@ -201,11 +197,12 @@ public class SurfaceCache : GLib.Object {
 	}
 
 	public void trees () {
-		SDL.Surface image = SDLImage.load( "/home/l/tree200.png" );
+		SDL.Surface image = SDLImage.load( "/home/mik/racer/tree.png" );
 
 		for ( int i = 0; i < this.nCaches; i++ ) {
 			this.tree[i] = SDLGraphics.RotoZoom.rotozoom( image, 0, ( i + 1d ) / this.nCaches, 0 );
 			this.tree[i] = this.tree[i].convert( format, flags);
+			//Transparency
 			this.tree[i].set_colorkey( SurfaceFlag.SRCCOLORKEY | SurfaceFlag.RLEACCEL, 16777215 );
 		}
 	}
