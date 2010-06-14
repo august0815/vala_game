@@ -50,4 +50,3 @@ public class ValaRacer : GLib.Object {
 		return vala_racer.game_loop ();
 	}
 }
-
