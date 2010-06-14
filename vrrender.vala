@@ -21,8 +21,8 @@ public class Painter : GLib.Object {
 
 		format = screen.format;
 		flags = screen.flags;
-		surfaceCache = new SurfaceCache (format, flags );
-		surfaceCache.trees ();
+		surfaceCache = new SurfaceCache ( format, flags );
+		surfaceCache.list_files ();
 
  	}
 
@@ -30,10 +30,10 @@ public class Painter : GLib.Object {
 		int iCache = (int) Math.floor( surfaceCache.nCaches * prcShrink );
 
 		Rect placement = Rect();
-		placement.x = posX - (int16) (surfaceCache.tree[iCache].w / 2d);
-		placement.y = posY - (int16) surfaceCache.tree[iCache].h;
+		placement.x = posX - (int16) (surfaceCache.surfaces[type, iCache].w / 2d);
+		placement.y = posY - (int16) surfaceCache.surfaces[type, iCache].h;
 
-		surfaceCache.tree[iCache].blit( null, screen, placement );
+		surfaceCache.surfaces[type, iCache].blit( null, screen, placement );
 	}
 
 	public void trapezoid ( int16[] xValues, int16[] yValues, uchar[] RGB ) {
@@ -183,28 +183,57 @@ public class DrawWorld : GLib.Object {
 }
 
 public class SurfaceCache : GLib.Object {
-	public SDL.Surface[] tree;
+	public SDL.Surface[,] surfaces;
 	public int nCaches = 300;
 	private unowned SDL.PixelFormat format;
 	private uint32 flags;
 
 	public SurfaceCache ( SDL.PixelFormat inFormat, uint32 inFlags ) {
-		tree = new SDL.Surface[nCaches];
 		format = inFormat;
 		flags = inFlags;
 	}
 
-	public void trees () {
-		SDL.Surface image = SDLImage.load( "/home/mik/racer/tree.png" );
+	public void list_files () {
+		try {
+			var directory = File.new_for_path ("./images");
+			var enumerator = directory.enumerate_children (FILE_ATTRIBUTE_STANDARD_NAME, 0, null);
+		
+			FileInfo fileInfo;
+			int i = 0;
+			while ((fileInfo = enumerator.next_file (null)) != null) {
+				i += 1;
+			}
+			
+			surfaces = new SDL.Surface[i, nCaches];
+		
+			enumerator = directory.enumerate_children (FILE_ATTRIBUTE_STANDARD_NAME, 0, null);
+
+			i = 0;
+			while ((fileInfo = enumerator.next_file (null)) != null) {
+				create_cache (i, fileInfo.get_name () );
+				i += 0;
+			}
+		}
+		catch (GLib.Error e) {
+			stderr.printf ("Error: %s\n", e.message);
+		}
+		
+	}
+
+
+	private void create_cache (int cacheIndex, string file) {
+		SDL.Surface image = SDLImage.load( "images/" + file );
 
 		for ( int i = 0; i < this.nCaches; i++ ) {
-			this.tree[i] = SDLGraphics.RotoZoom.rotozoom( image, 0, ( i + 1d ) / this.nCaches, 0 );
-			this.tree[i] = this.tree[i].convert( format, flags);
-			if ( (this.tree[i].h == 0) || (this.tree[i].w == 0) ) {
-				this.tree[i] = this.tree[i - 1].convert( format, flags);
+			surfaces[cacheIndex, i] = SDLGraphics.RotoZoom.rotozoom( image, 0, ( i + 1d ) / this.nCaches, 0 );
+			surfaces[cacheIndex, i] = surfaces[cacheIndex, i].convert( format, flags);
+
+			//If any dimension is 0 it won't be drawn which would look weird
+			if ( surfaces[cacheIndex, i].h == 0 || surfaces[cacheIndex, i].w == 0 ) {
+				surfaces[cacheIndex, i] = surfaces[cacheIndex, i - 1].convert( format, flags);
 			}
 			//Transparency
-			this.tree[i].set_colorkey( SurfaceFlag.SRCCOLORKEY | SurfaceFlag.RLEACCEL, 16777215 );
+			this.surfaces[cacheIndex, i].set_colorkey( SurfaceFlag.SRCCOLORKEY | SurfaceFlag.RLEACCEL, 16777215 );
 		}
 	}
 }

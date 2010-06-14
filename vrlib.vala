@@ -198,9 +198,9 @@ public class RoadGenerator : GLib.Object {
 	private GeneratedObjects shoulder_objects_alg ( int[] segScope ) {
 		GeneratedObjects objects = new GeneratedObjects ();
 		for ( int i = 0; i < this.length; i++ ) {
-			int iObjOnLine = GLib.Random.int_range ( -10, 2 );
+			int iObjOnLine = GLib.Random.int_range ( 0, 2 );
 			for ( int j = 0; j < iObjOnLine; j++ ) {
-				objects.type.append ( 1 );
+				objects.type.append ( 0 );
 				objects.trackID.append ( segScope[0] + i );
 				objects.prcFromRoad.append ( GLib.Random.int_range ( -200, 200 ) );
 			}
@@ -208,7 +208,6 @@ public class RoadGenerator : GLib.Object {
 		return objects;
 	}
 }
-
 
 public class Character : GLib.Object {
 	public int centerXPos { get; set; }
