@@ -30,11 +30,11 @@ sed -i 's,include <SDL,include <SDL\/SDL,' vrinput.c
 gcc --shared -fPIC -o libinput.so -lSDL -lSDL_image -lSDL_gfx $(pkg-config --cflags --libs gobject-2.0) -I. -L. -lstructs -lvr -lsql vrinput.c
 
 #VRRENDER
-valac --pkg=sdl --pkg=sdl-gfx --pkg=sdl-image -X -lSDL_gfx -X -lSDL_image -C -H vrrender.h --library vrrender ../vrrender.vala vrstructs.vapi --basedir ./
+valac --pkg=sdl --pkg=gio-2.0 --pkg=sdl-gfx --pkg=sdl-image -X -lSDL_gfx -X -lSDL_image -C -H vrrender.h --library vrrender ../vrrender.vala vrstructs.vapi --basedir ./
 
 sed -i 's,include <SDL,include <SDL\/SDL,' vrrender.c
 
-gcc --shared -fPIC -o librender.so -lSDL -lSDL_image -lSDL_gfx $(pkg-config --cflags --libs gobject-2.0) -I. -L. -lstructs vrrender.c
+gcc --shared -fPIC -o librender.so $(pkg-config --cflags --libs gio-2.0) -lSDL -lSDL_image -lSDL_gfx $(pkg-config --cflags --libs gobject-2.0) -I. -L. -lstructs vrrender.c
  
 #VR
 valac --pkg=sdl --pkg=sdl-gfx --pkg=sdl-image -X -lSDL_gfx -X -lSDL_image -X -I. -X -L. -X -lvr -X -lsql -X -lstructs -X -lrender -X -linput -o ./racer ../racer.vala vrlib.vapi vrsql.vapi vrstructs.vapi vrrender.vapi vrinput.vapi --basedir ./
