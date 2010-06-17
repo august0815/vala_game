@@ -79,13 +79,13 @@ public class RoadProjector : GLib.Object {
 			double projXR =  vecNormR[0] * factorR + xPos[1];
 
 			//winYSize because 0y is on top of the screen so the image needs to be inverted
-			int16 projYL = (int16) ( winYSize - ( vecNormL[1] * factorL + yPos[0] ) );
-			int16 projYR = (int16) ( winYSize - ( vecNormR[1] * factorR + yPos[1] ) );
+			double projYL = ( winYSize - ( vecNormL[1] * factorL + yPos[0] ) );
+			double projYR = ( winYSize - ( vecNormR[1] * factorR + yPos[1] ) );
 
 			//Prepare next values
 			xOffset += curTrack[0, i];
 			yOffset += curTrack[1, i];
-			pointZ = eyeZ + ROAD_SEG_LENGTH * i + (int) Math.ceil( dampeningPrc * ROAD_SEG_LENGTH );
+			pointZ = eyeZ + ROAD_SEG_LENGTH * i + ( dampeningPrc * ROAD_SEG_LENGTH );
 
 			newFrame.trackRightX[i] = projXR;
 			newFrame.trackRightY[i] = projYR;
@@ -210,7 +210,7 @@ public class RoadGenerator : GLib.Object {
 }
 
 public class Character : GLib.Object {
-	public int centerXPos { get; set; }
+	public int winXSize { get; set; }
 	public int roadSegLength { get; set; }
 	public double zPosition;
 	public double xPosition;
@@ -228,7 +228,7 @@ public class Character : GLib.Object {
 	private int timeSinceLastUpdate;
 
 	public Character ( int[] inAcceleration, int[] inTopSpeed, int[] inDecelleration, int inWinXSize, int inRoadSegLength ) {
-		centerXPos = inWinXSize / 2;
+		winXSize = inWinXSize;
 		roadSegLength = inRoadSegLength;
 
 		acceleration = inAcceleration;
@@ -315,6 +315,7 @@ public class Character : GLib.Object {
 		for ( int i = 0; i < curTrackEnd; i++ ) {
 			this.xPosition += (float)curTrack[0, i] * direction;
 		}
+
 		collision( ref db, startSeg, endSeg );
 	}
 
@@ -326,15 +327,15 @@ public class Character : GLib.Object {
 			double objXStart;
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
-				objXStart = objPrcOfRoad * 800;
+				objXStart = objPrcOfRoad * winXSize - 100;
 			}
 			else {
-				objXStart = objPrcOfRoad * 800 + 800;
+				objXStart = objPrcOfRoad * winXSize + 800 - 100;
 			}
 
-			double xPosCentered = (this.xPosition - 400 - 100) * -1;
+			double xPosCentered = (this.xPosition - winXSize / 2) * -1;
 			double objXEnd = objXStart + 200;
-
+			stderr.printf("%f;%f;%f\n", xPosCentered, objXStart, objXEnd);
 			if ( ( objXStart < (xPosCentered) ) && ( objXEnd > (xPosCentered) ) ) {
 				stderr.printf("aaaaaaaaaaaaaaa\n");
 				return;

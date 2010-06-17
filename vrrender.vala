@@ -9,7 +9,6 @@ public class Painter : GLib.Object {
 	SurfaceCache surfaceCache;
 
 	public Painter ( int xRes, int yRes ) {
-
 		uint32 video_flags = SurfaceFlag.DOUBLEBUF | SurfaceFlag.HWACCEL | SurfaceFlag.HWSURFACE;
         SDL.init (InitFlag.VIDEO);
         screen = Screen.set_video_mode ( xRes, yRes, 32, video_flags);
@@ -22,16 +21,15 @@ public class Painter : GLib.Object {
 		format = screen.format;
 		flags = screen.flags;
 		surfaceCache = new SurfaceCache ( format, flags );
-		surfaceCache.list_files ();
-
+		surfaceCache.build_cache ();
  	}
 
-	public void sprite ( int type, int16 posX, int16 posY, double prcShrink ) {
+	public void sprite ( int type, double posX, double posY, double prcShrink ) {
 		int iCache = (int) Math.floor( surfaceCache.nCaches * prcShrink );
 
 		Rect placement = Rect();
-		placement.x = posX - (int16) (surfaceCache.surfaces[type, iCache].w / 2d);
-		placement.y = posY - (int16) surfaceCache.surfaces[type, iCache].h;
+		placement.x = (int16) ( posX - surfaceCache.surfaces[type, iCache].w / 2d);
+		placement.y = (int16) ( posY - surfaceCache.surfaces[type, iCache].h );
 
 		surfaceCache.surfaces[type, iCache].blit( null, screen, placement );
 	}
@@ -83,15 +81,15 @@ public class DrawWorld : GLib.Object {
 			/*Since most everything is based on the position of the road segment
 			  those values are added so that all methods can reach them
 			*/
-			yValuesRoad = { frame.trackLeftY[iSeg - 1], //bottom y
-							frame.trackLeftY[iSeg], //top y 
-							frame.trackRightY[iSeg], //bottom y
-							frame.trackRightY[iSeg - 1] }; //top y 
+			yValuesRoad = { (int16) frame.trackLeftY[iSeg - 1], //bottom y
+							(int16) frame.trackLeftY[iSeg], //top y 
+							(int16) frame.trackRightY[iSeg], //bottom y
+							(int16) frame.trackRightY[iSeg - 1] }; //top y 
 
-			xValuesRoad = { (int16)frame.trackLeftX[iSeg - 1], //bottom left x
-							(int16)frame.trackLeftX[iSeg], // top left x
-							(int16)frame.trackRightX[iSeg],//bottom right x
-							(int16)frame.trackRightX[iSeg - 1] }; // top right x
+			xValuesRoad = { (int16) frame.trackLeftX[iSeg - 1], //bottom left x
+							(int16) frame.trackLeftX[iSeg], // top left x
+							(int16) frame.trackRightX[iSeg],//bottom right x
+							(int16) frame.trackRightX[iSeg - 1] }; // top right x
 
 			paint.lockit();
 			draw_grass( ref paint );
@@ -100,7 +98,6 @@ public class DrawWorld : GLib.Object {
 			paint.unlockit();
 
 			prep_shoulder_obj( ref paint );
-
 		}
 	}
 
@@ -161,18 +158,18 @@ public class DrawWorld : GLib.Object {
 			double objPrcOfRoad = objs.prcFromRoad[ iShoulder ] / 100d;
 			double posOffset = curRoadSize * objPrcOfRoad;
 
-			int16 objX;
-			int16 objY;
+			double objX;
+			double objY;
 
 			if ( objPrcOfRoad < 0 ) { //Obj on left side
 				int spritePos = xValuesRoad[ 1 ] + (int)posOffset;
-				objX = (int16) ( spritePos);
-				objY = yValuesRoad[1];
+				objX = spritePos;
+				objY = frame.trackLeftY[iSeg];
 			}
 			else {
 				int spritePos = xValuesRoad[ 2 ] + (int)posOffset;
-				objX = (int16) ( spritePos);
-				objY = yValuesRoad[2]; 
+				objX = spritePos;
+				objY = frame.trackLeftY[iSeg]; 
 			}
 
 			paint.sprite ( objType, objX , objY, prcShrink );
@@ -184,7 +181,7 @@ public class DrawWorld : GLib.Object {
 
 public class SurfaceCache : GLib.Object {
 	public SDL.Surface[,] surfaces;
-	public int nCaches = 300;
+	public int nCaches = 600;
 	private unowned SDL.PixelFormat format;
 	private uint32 flags;
 
@@ -193,7 +190,7 @@ public class SurfaceCache : GLib.Object {
 		flags = inFlags;
 	}
 
-	public void list_files () {
+	public void build_cache () {
 		try {
 			var directory = File.new_for_path ("./images");
 			var enumerator = directory.enumerate_children (FILE_ATTRIBUTE_STANDARD_NAME, 0, null);
@@ -205,23 +202,21 @@ public class SurfaceCache : GLib.Object {
 			}
 			
 			surfaces = new SDL.Surface[i, nCaches];
-		
+			//Reset enumerator
 			enumerator = directory.enumerate_children (FILE_ATTRIBUTE_STANDARD_NAME, 0, null);
 
 			i = 0;
-			while ((fileInfo = enumerator.next_file (null)) != null) {
-				create_cache (i, fileInfo.get_name () );
+			while (( fileInfo = enumerator.next_file (null)) != null ) {
+				process_image (i, fileInfo.get_name () );
 				i += 0;
 			}
 		}
 		catch (GLib.Error e) {
 			stderr.printf ("Error: %s\n", e.message);
 		}
-		
 	}
 
-
-	private void create_cache (int cacheIndex, string file) {
+	private void process_image (int cacheIndex, string file) {
 		SDL.Surface image = SDLImage.load( "images/" + file );
 
 		for ( int i = 0; i < this.nCaches; i++ ) {

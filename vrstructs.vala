@@ -46,16 +46,16 @@ public class GeneratedObjects : GLib.Object {
 public class FrameData : GLib.Object {
 	public double[] trackLeftX;
 	public double[] trackRightX;
-	public int16[] trackLeftY;
-	public int16[] trackRightY;
+	public double[] trackLeftY;
+	public double[] trackRightY;
 	public bool[] divider;
 	public int16[] groundColor;
 
 	public FrameData ( int nIndex ) {
 		trackLeftX = new double[nIndex];
 		trackRightX = new double[nIndex];
-		trackLeftY = new int16[nIndex];
-		trackRightY = new int16[nIndex];
+		trackLeftY = new double[nIndex];
+		trackRightY = new double[nIndex];
 		divider = new bool[nIndex];
 		groundColor = new int16[nIndex];
 	}

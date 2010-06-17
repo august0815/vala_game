@@ -40,7 +40,7 @@ public class ValaRacer : GLib.Object {
 			paint.flip();
 
 			uint32 timeAfter = SDL.Timer.get_ticks();
-			stderr.printf("FPS: %u\n", ( 1000 / ( timeAfter - timeBefore)  ) );
+//			stderr.printf("FPS: %u\n", ( 1000 / ( timeAfter - timeBefore)  ) );
 		}
 		return 0;
 	}
