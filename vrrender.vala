@@ -58,7 +58,6 @@ public class DrawWorld : GLib.Object {
 	private int winYSize;
 	private int iSeg;
 	private int iShoulder;
-	private int iLines;
 	private int16[] yValuesRoad;
 	private int16[] xValuesRoad;
 
@@ -72,24 +71,24 @@ public class DrawWorld : GLib.Object {
 		objs = inObjs;
 
 		paint.trapezoid ( {0, 0, 800, 800}, {500, 0, 0, 500}, {200, 200, 200});
-		iLines = (int) frame.trackLeftY.length - 1;
+		iSeg = (int) frame.trackLeftY.length - 1;
 		iShoulder = objs.trackID.length - 1;
 
-		for (int i = 0; i < iLines; i++){
-			iSeg = iLines - i;
+		while ( iSeg != 0 ) {
+			iSeg -= 1;
 			
 			/*Since most everything is based on the position of the road segment
 			  those values are added so that all methods can reach them
 			*/
-			yValuesRoad = { (int16) frame.trackLeftY[iSeg - 1], //bottom y
+			yValuesRoad = { (int16) frame.trackLeftY[iSeg + 1], //bottom y
 							(int16) frame.trackLeftY[iSeg], //top y 
 							(int16) frame.trackRightY[iSeg], //bottom y
-							(int16) frame.trackRightY[iSeg - 1] }; //top y 
+							(int16) frame.trackRightY[iSeg + 1] }; //top y 
 
-			xValuesRoad = { (int16) frame.trackLeftX[iSeg - 1], //bottom left x
+			xValuesRoad = { (int16) frame.trackLeftX[iSeg + 1], //bottom left x
 							(int16) frame.trackLeftX[iSeg], // top left x
 							(int16) frame.trackRightX[iSeg],//bottom right x
-							(int16) frame.trackRightX[iSeg - 1] }; // top right x
+							(int16) frame.trackRightX[iSeg + 1] }; // top right x
 
 			paint.lockit();
 			draw_grass( ref paint );
@@ -153,7 +152,7 @@ public class DrawWorld : GLib.Object {
 		double curRoadSize = frame.trackRightX[iSeg] - frame.trackLeftX[iSeg];
 		double prcShrink = (double)curRoadSize / (double)winXSize;
 		
-		while ( objs.trackID[iShoulder] == (iSeg + 1) ) {
+		while ( objs.trackID[iShoulder] == (iSeg) ) {
 			int objType = objs.type[ iShoulder ];
 			double objPrcOfRoad = objs.prcFromRoad[ iShoulder ] / 100d;
 			double posOffset = curRoadSize * objPrcOfRoad;
