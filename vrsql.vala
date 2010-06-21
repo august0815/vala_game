@@ -142,7 +142,7 @@ public class VRSql : GLib.Object {
 					int colData = (int) stmt.column_int ( curCol );
 					switch ( curCol ) {
 					case 1:
-						objs.trackID[i] = (colData - segStart) + 1;
+						objs.trackID[i] = (colData - segStart) + 1; // +1 since there is not road segment 0, it starts at 1
 						break;
 					case 2:
 						objs.type[i] = colData;

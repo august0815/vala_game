@@ -21,7 +21,7 @@ public class RoadProjector : GLib.Object {
 	}
 
 	public FrameData build_road ( ref VRSql db ) {
-		FrameData newFrame = new FrameData ( TRACK_CHUNCK + 2 );
+		FrameData newFrame = new FrameData ( TRACK_CHUNCK + 1 );
 
 		//Which road segment does trackStart belong to
 	 	int iFirstSeg = (int) Math.round ( trackStart / ROAD_SEG_LENGTH ) + 1;
@@ -50,16 +50,13 @@ public class RoadProjector : GLib.Object {
 		double yOffset = 0;
 		double pointZ = eyeZ; //First seg is right underneath the screen
 		for ( int i = 0; i <= TRACK_CHUNCK; i++ ) { 
-
-			if (i == 500){
-				stderr.printf("%f\n", xOffset);}
 			double[] xPos;
 			double[] yPos;
 
 			xPos = new double[] { xOffset + xShift, (xOffset + winXSize)+xShift };
 			yPos = new double[] { yOffset, yOffset};
 
-			//vectors from podouble towards eye
+			//vectors from point towards eye
    			double[] xVectors = new double[] { eyeX - xPos[0], eyeX - xPos[1] }; //Left and right
 			double[] yVectors = new double[] { eyeY - yPos[0], eyeY - yPos[1] };
 			double zVector = -pointZ;  
@@ -99,11 +96,6 @@ public class RoadProjector : GLib.Object {
 			ground ( iFirstSeg, i, ref newFrame );
 		}
 
-		newFrame.trackRightX[TRACK_CHUNCK+1] = newFrame.trackRightX[TRACK_CHUNCK];
-		newFrame.trackRightY[TRACK_CHUNCK+1] = newFrame.trackRightY[TRACK_CHUNCK];
-		newFrame.trackLeftX[TRACK_CHUNCK+1] = newFrame.trackLeftX[TRACK_CHUNCK];
-		newFrame.trackLeftY[TRACK_CHUNCK+1] = newFrame.trackLeftY[TRACK_CHUNCK];
-
 		return newFrame;
 	}
 
@@ -133,7 +125,10 @@ public class RoadProjector : GLib.Object {
 
 	public ChunckOfObjects get_shoulder ( ref VRSql db ) {
 		int iFirstSeg = (int) Math.round ( trackStart / ROAD_SEG_LENGTH ) + 1;
-		ChunckOfObjects obj = db.get_shoulder ( iFirstSeg, iFirstSeg + TRACK_CHUNCK - 1 );
+		
+		//-2 because there are 2 segments that aren't rendered, first (existing just at the bottom of the screen)
+		//and the last (used as slush becasue segs have to be rendered two together)
+		ChunckOfObjects obj = db.get_shoulder ( iFirstSeg, iFirstSeg + TRACK_CHUNCK - 2 );
 		return obj;
 	} 
 }
@@ -312,13 +307,12 @@ public class Character : GLib.Object {
 
 		int[,] curTrack = db.get_road( startSeg, endSeg );
 		int curTrackEnd = (int)Math.fabs(endSeg - startSeg) + 1;
-			stderr.printf("%i;%i\n", startSeg,endSeg);
 		if ( endSeg == startSeg ){
 			endDmpPrc = Math.fabs( 1 - ( endDmpPrc + startDmpPrc ) );
 			this.xPosition += (float) (curTrack[0,0] * endDmpPrc) * direction;
 			return;
 		}
-
+		stderr.printf("%i\n",startSeg);
 		curTrack[0, 0] = (int) ((double)curTrack[0, 0] * (startDmpPrc));
 		curTrack[0, curTrackEnd -1] = (int) ((double)curTrack[0, curTrackEnd - 1] * (endDmpPrc));
 		for ( int i = 0; i < curTrackEnd; i++ ) {
@@ -344,7 +338,7 @@ public class Character : GLib.Object {
 
 			double xPosCentered = (this.xPosition - winXSize / 2) * -1;
 			double objXEnd = objXStart + 200;
-			stderr.printf("%i;%i\n", start,end);
+//			stderr.printf("%i;%i\n", start,end);
 			if ( ( objXStart < (xPosCentered) ) && ( objXEnd > (xPosCentered) ) ) {
 				stderr.printf("aaaaaaaaaaaaaaa\n");
 				return;
