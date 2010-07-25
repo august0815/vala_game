@@ -216,36 +216,18 @@ public class RoadGenerator : GLib.Object {
 public class Character : GLib.Object {
 	public int winXSize { get; set; }
 	public int roadSegLength { get; set; }
-	public double zPosition;
-	public double xPosition;
-	public double yPosition;
-
-	private int[] acceleration = new int[2];
-	private int[] topSpeed = new int[2];
-	private int[] decelleration = new int[2];
-
-	private double[] currentSpeed = new double[2];
-	private int[] currentDirection = new int[2];
-	public int[] reversedDirection = new int[2];
-
 	private int[] timeAccelerationStart = new int[2];
-	private int timeSinceLastUpdate;
 
-	public Character ( int[] inAcceleration, int[] inTopSpeed, int[] inDecelleration, int inWinXSize, int inRoadSegLength ) {
+	private List<Character> characters;
+	private int nCurrentCharacter;
+
+	public Character ( int inWinXSize, int inRoadSegLength ) {
 		winXSize = inWinXSize;
 		roadSegLength = inRoadSegLength;
+	}
 
-		acceleration = inAcceleration;
-		topSpeed = inTopSpeed;
-		decelleration = inDecelleration;
-
-		currentDirection[0] = 0;
-		currentDirection[1] = 0;
-		currentSpeed[0] = 0;
-		currentSpeed[1] = 0;
-		reversedDirection[0] = 0;
-		reversedDirection[1] = 0;
-		timeSinceLastUpdate = (int) SDL.Timer.get_ticks();
+	public void append_character ( int[] inAcceleration, int[] inTopSpeed, int[] inDecelleration ) {
+		characters.append ( new Character ( inAcceleration, inTopSpeed, inDecelleration ) );
 	}
 
 	public void decelerate ( int index ) {
@@ -312,7 +294,7 @@ public class Character : GLib.Object {
 			this.xPosition += (float) (curTrack[0,0] * endDmpPrc) * direction;
 			return;
 		}
-		stderr.printf("%i\n",startSeg);
+
 		curTrack[0, 0] = (int) ((double)curTrack[0, 0] * (startDmpPrc));
 		curTrack[0, curTrackEnd -1] = (int) ((double)curTrack[0, curTrackEnd - 1] * (endDmpPrc));
 		for ( int i = 0; i < curTrackEnd; i++ ) {
@@ -338,7 +320,7 @@ public class Character : GLib.Object {
 
 			double xPosCentered = (this.xPosition - winXSize / 2) * -1;
 			double objXEnd = objXStart + 200;
-//			stderr.printf("%i;%i\n", start,end);
+
 			if ( ( objXStart < (xPosCentered) ) && ( objXEnd > (xPosCentered) ) ) {
 				stderr.printf("aaaaaaaaaaaaaaa\n");
 				return;
