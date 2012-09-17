@@ -1,0 +1,18 @@
+#!/usr/bin/env python
+
+def build(bld):
+	prog = bld(features='cc cprogram')
+	# symbolic name used to reference this object
+	prog.name = 'race'
+	prog.includes  = '/usr/include/SDL'
+	# name of the resulting program
+	prog.target = 'race'
+	prog.source =  'racer.vala vrrender.vala vrstructs.vala vrinput.vala vrlib.vala vrsql.vala'
+	# libraries to link against
+	prog.uselib = 'GTK+  GLIB GEE SDL  SDLIMAGE SDLGraphics Sqlite'
+	# Vala packages to use
+	prog.packages = 'gtk+-3.0 glib-2.0 gee-1.0 gl glu gsl sdl sdl-image sdl-gfx sqlite3'
+	# Extra vapi dirs
+	#prog.vapi_dirs = '../my_lib'
+	# Enable threading
+	prog.threading = True
