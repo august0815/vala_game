@@ -39,6 +39,7 @@ public class Painter : GLib.Object {
 	}
 
 	public void flip () {
+		stdout.printf("TEST: 11 \n"   );
 		screen.flip ();
 	}
 
@@ -69,14 +70,15 @@ public class DrawWorld : GLib.Object {
 	public void get_frame ( FrameData inFrame, ChunckOfObjects inObjs, ref Painter paint ) {
 		frame = inFrame;
 		objs = inObjs;
-
+		stdout.printf("TEST_get_frame: 1 \n"   );
 		paint.trapezoid ( {0, 0, 800, 800}, {500, 0, 0, 500}, {200, 200, 200});
 		iSeg = (int) frame.trackLeftY.length - 1;
 		iShoulder = objs.trackID.length - 1;
-
+		stdout.printf("TEST_get_frame: 2 \n"   );
+		int iSeg = 10;
 		while ( iSeg != 0 ) {
-			iSeg -= 1;
 			
+			stdout.printf("TEST_get_frame: 3 \n"   );
 			/*Since most everything is based on the position of the road segment
 			  those values are added so that all methods can reach them
 			*/
@@ -89,14 +91,16 @@ public class DrawWorld : GLib.Object {
 							(int16) frame.trackLeftX[iSeg], // top left x
 							(int16) frame.trackRightX[iSeg],//bottom right x
 							(int16) frame.trackRightX[iSeg + 1] }; // top right x
-
+			stdout.printf("TEST_get_frame: 4 \n"   );
 			paint.lockit();
 			draw_grass( ref paint );
 			draw_road( ref paint );
 			draw_divider( ref paint );
 			paint.unlockit();
-
+			
 			prep_shoulder_obj( ref paint );
+			stdout.printf("TEST_get_frame: 5 \n"   );
+			iSeg = iSeg - 1;
 		}
 	}
 
@@ -192,7 +196,7 @@ public class SurfaceCache : GLib.Object {
 	public void build_cache () {
 		try {
 			var directory = File.new_for_path ("./images");
-			var enumerator = directory.enumerate_children (FILE_ATTRIBUTE_STANDARD_NAME, 0, null);
+			var enumerator = directory.enumerate_children (FileAttribute.STANDARD_NAME, 0, null);
 		
 			FileInfo fileInfo;
 			int i = 0;
@@ -202,10 +206,11 @@ public class SurfaceCache : GLib.Object {
 			
 			surfaces = new SDL.Surface[i, nCaches];
 			//Reset enumerator
-			enumerator = directory.enumerate_children (FILE_ATTRIBUTE_STANDARD_NAME, 0, null);
+			enumerator = directory.enumerate_children (FileAttribute.STANDARD_NAME, 0, null);
 
 			i = 0;
 			while (( fileInfo = enumerator.next_file (null)) != null ) {
+				//print fileInfo.get_name.to_string ;
 				process_image (i, fileInfo.get_name () );
 				i += 0;
 			}
