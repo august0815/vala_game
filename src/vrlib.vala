@@ -312,7 +312,7 @@ public class Character : GLib.Object {
 			this.xPosition += (float) (curTrack[0,0] * endDmpPrc) * direction;
 			return;
 		}
-		stderr.printf("%i\n",startSeg);
+		//stderr.printf("%i\n",startSeg);
 		curTrack[0, 0] = (int) ((double)curTrack[0, 0] * (startDmpPrc));
 		curTrack[0, curTrackEnd -1] = (int) ((double)curTrack[0, curTrackEnd - 1] * (endDmpPrc));
 		for ( int i = 0; i < curTrackEnd; i++ ) {

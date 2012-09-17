@@ -71,11 +71,11 @@ public class DrawWorld : GLib.Object {
 		objs = inObjs;
 		
 		paint.trapezoid ( {0, 0, 800, 800}, {500, 0, 0, 500}, {200, 200, 200});
-		iSeg = (int) frame.trackLeftY.length - 1;
+		//iSeg = (int) frame.trackLeftY.length - 1;
 		iShoulder = objs.trackID.length - 1;
-		
+		iSeg =400;
 		while ( iSeg != 0 ) {
-			iSeg = --
+			iSeg = iSeg -1;
 			/*Since most everything is based on the position of the road segment
 			  those values are added so that all methods can reach them
 			*/
