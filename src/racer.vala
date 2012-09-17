@@ -29,22 +29,14 @@ public class ValaRacer : GLib.Object {
 			uint32 timeBefore = SDL.Timer.get_ticks();
 			keyInput.get_input ( ref state.running );
 			keyInput.modify_game_state ( ref state );
-			stdout.printf("TEST: 3 \n"   );
 			keyInput.modify_player ( ref player );
-			//stdout.printf("TEST: 4 \n"   );
 			player.move ( ref vrdb );
-			stdout.printf("TEST: 5 \n"   );
 			road.xShift = player.xPosition;
-			stdout.printf("TEST: 6 \n"   );
 			road.trackStart = (int)player.zPosition;
-			stdout.printf("TEST: 7 \n"   );
 			FrameData newFrame = road.build_road ( ref vrdb );
-			stdout.printf("TEST: 8 \n"   );
 			ChunckOfObjects obj = road.get_shoulder ( ref vrdb );
-			stdout.printf("TEST: 9 \n"   );
-
+			
 			draw.get_frame( newFrame, obj, ref paint );
-			stdout.printf("TEST: 10 \n"   );
 			paint.flip();
 
 			uint32 timeAfter = SDL.Timer.get_ticks();
