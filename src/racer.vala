@@ -26,7 +26,7 @@ public class ValaRacer : GLib.Object {
 	private int game_loop () {
 		while ( state.running ) {
 			
-			uint32 timeBefore = SDL.Timer.get_ticks();
+		//	uint32 timeBefore = SDL.Timer.get_ticks();
 			keyInput.get_input ( ref state.running );
 			keyInput.modify_game_state ( ref state );
 			keyInput.modify_player ( ref player );
@@ -39,9 +39,9 @@ public class ValaRacer : GLib.Object {
 			draw.get_frame( newFrame, obj, ref paint );
 			paint.flip();
 
-			uint32 timeAfter = SDL.Timer.get_ticks();
-			fps=1000/( timeAfter+1 - timeBefore)  ; 
-			stdout.printf("FPS: %u\n", fps );
+		//	uint32 timeAfter = SDL.Timer.get_ticks();
+		//	fps=1000/( timeAfter+1 - timeBefore)  ; 
+		//	stdout.printf("FPS: %u\n", fps );
 			
 			
 		}

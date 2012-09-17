@@ -1,0 +1,35 @@
+
+[indentation]
+indent_width=4
+indent_type=1
+indent_hard_tab_width=8
+detect_indent=false
+detect_indent_width=false
+indent_mode=2
+
+[project]
+name=racer1
+base_path=/home/mario/vala_game
+description=
+file_patterns=
+
+[long line marker]
+long_line_behaviour=1
+long_line_column=72
+
+[files]
+current_page=0
+
+[VTE]
+last_dir=/home/mario
+
+[build-menu]
+NF_00_LB=waf
+NF_00_CM=../waf
+NF_00_WD=
+NF_01_LB=waf config
+NF_01_CM=./waf configure
+NF_01_WD=
+NF_02_LB=waf clean
+NF_02_CM=./waf clean
+NF_02_WD=

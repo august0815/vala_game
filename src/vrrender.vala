@@ -206,7 +206,6 @@ public class SurfaceCache : GLib.Object {
 
 			i = 0;
 			while (( fileInfo = enumerator.next_file (null)) != null ) {
-				//print fileInfo.get_name.to_string ;
 				process_image (i, fileInfo.get_name () );
 				i += 0;
 			}
