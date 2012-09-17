@@ -1,0 +1,29 @@
+
+Use waf for building :
+
+./waf configure
+
+
+depends on
+
+
+Checking for program version valac >= 0.1.6 : ok 0.16.0
+Checking for gee-1.0 >= 0.1.5               : yes
+Checking for gee-1.0 >= 0.1.5               : yes
+Checking for sdl >= 1.2                     : yes
+Checking for SDL_image >= 1.2               : yes
+Checking for SDL_gfx >= 1.2                 : yes
+Checking for sqlite3 >= 3.0                 : yes
+
+
+then if 'configure' finished successfully (0...s) 
+
+type ./waf
+
+before run racer with go , please  type 
+./track_data  once ! for database 
+
+then 
+./go
+
+
