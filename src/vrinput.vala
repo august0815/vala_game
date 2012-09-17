@@ -12,7 +12,7 @@ public class KeyboardInput : GLib.Object {
 	}
 
 	public void get_input ( ref bool running ) {
-        while (Event.poll (event) == 1) {
+        while (Event.poll (out event) == 1) {
             switch (event.type) {
             case EventType.QUIT:
                 running = false;
